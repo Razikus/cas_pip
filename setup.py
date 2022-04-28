@@ -15,8 +15,7 @@ requirements = ['Click>=7.0', ]
 test_requirements = [ ]
 
 setup(
-    author="Adam Raźniewski",
-    author_email='adam@codenotary.com',
+    author="Codenotary",
     python_requires='>=3.6',
     classifiers=[
         'Development Status :: 2 - Pre-Alpha',
@@ -28,7 +27,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    description="Community Attestation Pip integration",
+    description="Community Attestation pip integration",
     entry_points={
         'console_scripts': [
             'cas_pip=cas_pip.cli:main',
