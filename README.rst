@@ -39,3 +39,9 @@ Install it
 Installation is very easy::
 
     pip install cas_pip
+
+Usage
+----------
+
+.. image:: https://asciinema.org/a/491483.svg
+   :target: https://asciinema.org/a/491483
