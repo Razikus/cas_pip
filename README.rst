@@ -21,7 +21,7 @@ Community Attestation Pip integration
 
 
 Features
---------
+----------
 
 * Notarizing requirements.txt 
 * Authorizing requirements.txt
@@ -35,7 +35,6 @@ Features
 
 
 Install it
---------
-```
-pip
-```
+----------
+Installation is very easy::
+    pip install cas_pip
