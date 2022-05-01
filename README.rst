@@ -25,6 +25,10 @@ Features
 
 * Notarizing requirements.txt 
 * Authorizing requirements.txt
+* Notarizing files
+* Authorizing files
 * Notarizing hashes
 * Authorizing hashes
 * API client 
+* Async API client
+* Easy integration with your software

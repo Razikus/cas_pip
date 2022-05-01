@@ -10,7 +10,7 @@ with open('README.rst') as readme_file:
 with open('HISTORY.rst') as history_file:
     history = history_file.read()
 
-requirements = ['Click>=8.1.3', ]
+requirements = ['Click>=8.1.3', "grpcio>=1.44.0", "pydantic>=1.9.0", "aiofiles>=0.8.0", "pytz>=2022.1"]
 
 test_requirements = [ ]
 

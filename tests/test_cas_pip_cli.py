@@ -41,7 +41,7 @@ class TestCas_pip(unittest.TestCase):
         help_result = runner.invoke(cli.cli, ['--help'])
         assert help_result.exit_code == 0
         assert '--help  Show this message and exit.' in help_result.output
-        assert 'authorize' in help_result.output
+        assert 'authenticate' in help_result.output
         assert 'notarize' in help_result.output
 
     def test_notarization(self):
@@ -154,7 +154,7 @@ class TestCas_pip(unittest.TestCase):
             assert "click-8.1.3-py3-none-any.whl" in jsoned
 
 
-            help_result = runner.invoke(cli.cli, ['authorize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
+            help_result = runner.invoke(cli.cli, ['authenticate', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
             
             jsoned = json.loads(help_result.output)["statuses"]
             assert jsoned["~NOTARIZED_REQ_FILE~"] == 0
@@ -170,13 +170,13 @@ class TestCas_pip(unittest.TestCase):
             toOpen.write(packages)
             toOpen.close()
             hashed = self.get_hash(packages)
-            help_result = runner.invoke(cli.cli, ['authorize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
+            help_result = runner.invoke(cli.cli, ['authenticate', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
             jsoned = json.loads(help_result.output)["statuses"]
             assert jsoned["~NOTARIZED_REQ_FILE~"] == 0
             assert jsoned["websockets-8.1.tar.gz"] == 0
             assert jsoned["click-8.1.3-py3-none-any.whl"] == 0
             assert jsoned["starlette-0.17.1-py3-none-any.whl"] == 0
-            help_result = runner.invoke(cli.cli, ['authorize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress", "--notarizepip"])
+            help_result = runner.invoke(cli.cli, ['authenticate', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress", "--notarizepip"])
             jsoned = json.loads(help_result.output)["statuses"]
             assert jsoned["~NOTARIZED_REQ_PIPVERSION~"] == 0
             assert jsoned["~NOTARIZED_REQ_FILE~"] == 0

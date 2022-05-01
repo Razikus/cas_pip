@@ -71,7 +71,7 @@ async def markPipBomAs(casClient: CASClient, reqfile, taskchunk, pipnoquiet, noc
         listOf = ArtifactList(statuses = sbom)
         return listOf
 
-@cli.command(name="authorize", help = "Authorizes pip packages from provided requirements file")
+@cli.command(name="authenticate", help = "Authenticate pip packages from provided requirements file")
 @click.option('--reqfile', default="requirements.txt", help='Requirements file name')
 @click.option('--taskchunk', default=3, help='Max authorization request per once')
 @click.option('--pipnoquiet', default=True, is_flag = True, show_default = True, help='Disables output of pip')
@@ -82,7 +82,7 @@ async def markPipBomAs(casClient: CASClient, reqfile, taskchunk, pipnoquiet, noc
 @click.option('--noprogress',  default=False, is_flag = True, show_default = True, help='Shows progress bar of action')
 @click.option('--notarizepip', default=False, is_flag = True, show_default = True, help='Notarizing also pip version')
 @asynchronous
-async def authorize(reqfile, taskchunk, pipnoquiet, nocache, signerid, api_key, output, noprogress, notarizepip):
+async def authenticate(reqfile, taskchunk, pipnoquiet, nocache, signerid, api_key, output, noprogress, notarizepip):
     if(api_key == None and signerid == None):
         apikey = os.environ.get("CAS_API_KEY", None)
         signerid = os.environ.get("SIGNER_ID", None)
@@ -123,7 +123,8 @@ async def authorize(reqfile, taskchunk, pipnoquiet, nocache, signerid, api_key, 
             if(loaded):
                 status = loaded.status
                 authorizedSbom[packageName] = status
-                statusCodeToRet = status.value
+                if(status.value > 0):
+                    statusCodeToRet = status.value
             else:
                 status = ArtifactStatus.Unknown
                 statusCodeToRet = 1
@@ -168,6 +169,133 @@ async def notarize(reqfile, taskchunk, pipnoquiet, nocache, api_key, output, nop
         with open(output, "w") as toWrite:
             toWrite.write(listOf.json(indent= 4))
     sys.exit(0)
+
+
+
+@cli.command(name="notarizeFile", help = "Notarizes file")
+@click.option('--api-key', default=None, help='API Key')
+@click.option('--output', default="-", help='Specifies output file. "-" for printing to stdout. NONE for printing nothing')
+@click.option('--asname', default=None, help='Specifies name of resource. Defaults - filename')
+@click.argument("filename")
+@asynchronous
+async def notarizeFile(api_key, output, asname, filename):
+    if not asname:
+        asname = os.path.basename(filename)
+    if(api_key == None):
+        api_key = os.environ.get("CAS_API_KEY", None)
+        if(api_key == None):
+            logger.error("You must provide CAS_API_KEY environment or --api_key argument")
+            sys.exit(1)
+    casClient = CASClient(None, api_key)
+    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.Trusted)
+    if(not status):
+        sys.exit(1)
+    if(output == "-"):
+        print(artifact.json(indent= 4), flush=True)
+        sys.exit(0)
+    elif(output == "NONE"):
+        pass
+    else:
+        with open(output, "w") as toWrite:
+            toWrite.write(artifact.json(indent= 4))
+    sys.exit(0)
+
+@cli.command(name="untrustFile", help = "Untrusts file")
+@click.option('--api-key', default=None, help='API Key')
+@click.option('--output', default="-", help='Specifies output file. "-" for printing to stdout. NONE for printing nothing')
+@click.option('--asname', default=None, help='Specifies name of resource. Defaults - filename')
+@click.argument("filename")
+@asynchronous
+async def untrustFile(api_key, output, asname, filename):
+    if not asname:
+        asname = os.path.basename(filename)
+    if(api_key == None):
+        api_key = os.environ.get("CAS_API_KEY", None)
+        if(api_key == None):
+            logger.error("You must provide CAS_API_KEY environment or --api_key argument")
+            sys.exit(1)
+    casClient = CASClient(None, api_key)
+    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.Untrusted)
+    if(not status):
+        sys.exit(1)
+    if(output == "-"):
+        print(artifact.json(indent= 4), flush=True)
+        sys.exit(0)
+    elif(output == "NONE"):
+        pass
+    else:
+        with open(output, "w") as toWrite:
+            toWrite.write(artifact.json(indent= 4))
+    sys.exit(0)
+
+
+@cli.command(name="unsupportFile", help = "Unsupports file")
+@click.option('--api-key', default=None, help='API Key')
+@click.option('--output', default="-", help='Specifies output file. "-" for printing to stdout. NONE for printing nothing')
+@click.option('--asname', default=None, help='Specifies name of resource. Defaults - filename')
+@click.argument("filename")
+@asynchronous
+async def unsupportFile(api_key, output, asname, filename):
+    if not asname:
+        asname = os.path.basename(filename)
+    if(api_key == None):
+        api_key = os.environ.get("CAS_API_KEY", None)
+        if(api_key == None):
+            logger.error("You must provide CAS_API_KEY environment or --api_key argument")
+            sys.exit(1)
+    casClient = CASClient(None, api_key)
+    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.Unsupported)
+    if(not status):
+        sys.exit(1)
+    if(output == "-"):
+        print(artifact.json(indent= 4), flush=True)
+        sys.exit(0)
+    elif(output == "NONE"):
+        pass
+    else:
+        with open(output, "w") as toWrite:
+            toWrite.write(artifact.json(indent= 4))
+    sys.exit(0)
+
+@cli.command(name="authenticateFile", help = "Notarizes file")
+@click.option('--api-key', default=None, help='API Key')
+@click.option('--signerid', help='Signer ID')
+@click.option('--output', default="-", help='Specifies output file. "-" for printing to stdout. NONE for printing nothing')
+@click.argument("filename")
+@asynchronous
+async def authenticateFile(api_key, signerid, output, filename):
+    if(api_key == None and signerid == None):
+        apikey = os.environ.get("CAS_API_KEY", None)
+        signerid = os.environ.get("SIGNER_ID", None)
+        if(apikey == None and signerid == None):
+            logger.error("You must provide CAS_API_KEY or SIGNER_ID environment or --apikey argument or --signerid arugment to authorize")
+            sys.exit(1)
+    statusCodeToRet = 0
+    casClient = CASClient(signerid, api_key)
+    status, artifact = await casClient.authenticateFile(filename, ArtifactStatus.Trusted)
+    if(not status):
+        sys.exit(1)
+    authorizedSbom = dict()
+    if(artifact):
+        status = artifact.status
+        authorizedSbom[artifact.name] = status
+        if(status.value > 0):
+            print("X")
+            statusCodeToRet = status.value
+    else:
+        status = ArtifactStatus.Unknown
+        statusCodeToRet = 1
+        authorizedSbom[filename] = status
+        
+    listOf = ArtifactStatusList(statuses = authorizedSbom)
+    if(output == "-"):
+        print(listOf.json(indent= 4), flush=True)
+    elif(output == "NONE"):
+        pass
+    else:
+        with open(output, "w") as toWrite:
+            toWrite.write(listOf.json(indent= 4))
+    sys.exit(statusCodeToRet)
 
 @cli.command(name="untrust", help = "Untrust pip packages from provided requirements file")
 @click.option('--reqfile', default="requirements.txt", help='Requirements file name')
@@ -230,7 +358,7 @@ async def unsupport(reqfile, taskchunk, pipnoquiet, nocache, api_key, output, no
     sys.exit(0)
 
 def main():
-    cli.add_command(authorize)
+    cli.add_command(authenticate)
     cli.add_command(notarize)
     cli()
 
