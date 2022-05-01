@@ -28,6 +28,7 @@ def asynchronous(f):
 
 @click.group()
 def cli():
+    """Trusted - 0, Untrusted - 1, Unknown - 2, Unsupported - 3, Revoked - 4"""
     pass
 
 
@@ -83,10 +84,11 @@ async def markPipBomAs(casClient: CASClient, reqfile, taskchunk, pipnoquiet, noc
 @click.option('--notarizepip', default=False, is_flag = True, show_default = True, help='Notarizing also pip version')
 @asynchronous
 async def authenticate(reqfile, taskchunk, pipnoquiet, nocache, signerid, api_key, output, noprogress, notarizepip):
+    "Authenticate pip requirements.txt"
     if(api_key == None and signerid == None):
-        apikey = os.environ.get("CAS_API_KEY", None)
+        api_key = os.environ.get("CAS_API_KEY", None)
         signerid = os.environ.get("SIGNER_ID", None)
-        if(apikey == None and signerid == None):
+        if(api_key == None and signerid == None):
             logger.error("You must provide CAS_API_KEY or SIGNER_ID environment or --apikey argument or --signerid arugment to authorize")
             sys.exit(1)
     statusCodeToRet = 0
@@ -265,9 +267,9 @@ async def unsupportFile(api_key, output, asname, filename):
 @asynchronous
 async def authenticateFile(api_key, signerid, output, filename):
     if(api_key == None and signerid == None):
-        apikey = os.environ.get("CAS_API_KEY", None)
+        api_key = os.environ.get("CAS_API_KEY", None)
         signerid = os.environ.get("SIGNER_ID", None)
-        if(apikey == None and signerid == None):
+        if(api_key == None and signerid == None):
             logger.error("You must provide CAS_API_KEY or SIGNER_ID environment or --apikey argument or --signerid arugment to authorize")
             sys.exit(1)
     statusCodeToRet = 0

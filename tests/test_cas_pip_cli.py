@@ -13,11 +13,9 @@ import json
 import hashlib
 import pytest
 
-signerID = os.environ.get("SIGNER_ID", "adam@codenotary.com")
-apiKey = os.environ.get("CAS_API_KEY", "YWRhbUBjb2Rlbm90YXJ5LmNvbQ==.VYOtpkwbfjTpybwaVkPvfvTODnHbGTHrjJCT")
+signerID = os.environ.get("SIGNER_ID", "somesigner@signer")
+apiKey = os.environ.get("CAS_API_KEY", "signing")
 
-signerID = os.environ.get("OTHER_SIGNER_ID", "adam@codenotary.com")
-apiKey = os.environ.get("OTHER_CAS_API_KEY", "YWRhbUBjb2Rlbm90YXJ5LmNvbQ==.VYOtpkwbfjTpybwaVkPvfvTODnHbGTHrjJCT")
 
 
 @pytest.mark.filterwarnings("ignore:Creating a LegacyVersion")
