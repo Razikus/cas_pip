@@ -41,7 +41,6 @@ class TestCas_pip(unittest.TestCase):
         help_result = runner.invoke(cli.cli, ['--help'])
         assert help_result.exit_code == 0
         assert '--help  Show this message and exit.' in help_result.output
-        print(help_result.output)
         assert 'authorize' in help_result.output
         assert 'notarize' in help_result.output
 
@@ -57,9 +56,9 @@ class TestCas_pip(unittest.TestCase):
             toOpen.close()
             hashed = self.get_hash(packages)
             help_result = runner.invoke(cli.cli, ['notarize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
+            print(help_result.stdout)
             assert help_result.exit_code == 0 
-            print(help_result.output)
-            jsoned = json.loads(help_result.output)
+            jsoned = json.loads(help_result.output)["statuses"]
             assert jsoned["~NOTARIZED_REQ_FILE~"]["status"] == 0
             assert jsoned["~NOTARIZED_REQ_FILE~"]["hash"] == hashed
 
@@ -78,7 +77,7 @@ class TestCas_pip(unittest.TestCase):
             
             help_result = runner.invoke(cli.cli, ['notarize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
             assert help_result.exit_code == 0 
-            jsoned = json.loads(help_result.output)
+            jsoned = json.loads(help_result.output)["statuses"]
             assert jsoned["~NOTARIZED_REQ_FILE~"]["status"] == 0
             assert jsoned["~NOTARIZED_REQ_FILE~"]["hash"] == hashed
             assert "websockets-8.1.tar.gz" in jsoned # package provided
@@ -92,13 +91,13 @@ class TestCas_pip(unittest.TestCase):
             
             help_result = runner.invoke(cli.cli, ['notarize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress", "--output", "-"])
             assert help_result.exit_code == 0 
-            assert len(json.loads(help_result.output).keys()) > 3
+            assert len(json.loads(help_result.output)["statuses"].keys()) > 3
 
             help_result = runner.invoke(cli.cli, ['notarize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress", "--output", "outputfile"])
             assert help_result.exit_code == 0 
             assert os.path.exists("outputfile")
             notarizedAll = open("outputfile", "r")
-            jsoned = json.loads(notarizedAll.read())
+            jsoned = json.loads(notarizedAll.read())["statuses"]
             notarizedAll.close()
 
             assert "~NOTARIZED_REQ_FILE~" in jsoned
@@ -110,15 +109,13 @@ class TestCas_pip(unittest.TestCase):
 
 
             help_result = runner.invoke(cli.cli, ['notarize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress", "--output", "outputfile", "--notarizepip"])
-            print(help_result.output)
             assert help_result.exit_code == 0 
             assert os.path.exists("outputfile")
             notarizedAll = open("outputfile", "r")
-            jsoned = json.loads(notarizedAll.read())
+            jsoned = json.loads(notarizedAll.read())["statuses"]
             notarizedAll.close()
 
             assert "~NOTARIZED_REQ_FILE~" in jsoned
-            print(jsoned)
             assert jsoned["~NOTARIZED_REQ_PIPVERSION~"]["status"] == 0
             assert jsoned["~NOTARIZED_REQ_FILE~"]["hash"] == hashed
             assert jsoned["~NOTARIZED_REQ_FILE~"]["status"] == 0
@@ -150,7 +147,7 @@ class TestCas_pip(unittest.TestCase):
             hashed = self.get_hash(packages)
             help_result = runner.invoke(cli.cli, ['notarize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
             assert help_result.exit_code == 0 
-            jsoned = json.loads(help_result.output)
+            jsoned = json.loads(help_result.output)["statuses"]
             assert jsoned["~NOTARIZED_REQ_FILE~"]["status"] == 0
             assert jsoned["~NOTARIZED_REQ_FILE~"]["hash"] == hashed
 
@@ -158,9 +155,10 @@ class TestCas_pip(unittest.TestCase):
 
 
             help_result = runner.invoke(cli.cli, ['authorize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
-            jsoned = json.loads(help_result.output)
-            assert jsoned["~NOTARIZED_REQ_FILE~"] == "NOTARIZED"
-            assert jsoned["click-8.1.3-py3-none-any.whl"] == "NOTARIZED"
+            
+            jsoned = json.loads(help_result.output)["statuses"]
+            assert jsoned["~NOTARIZED_REQ_FILE~"] == 0
+            assert jsoned["click-8.1.3-py3-none-any.whl"] == 0
 
 
             packages = """
@@ -173,18 +171,18 @@ class TestCas_pip(unittest.TestCase):
             toOpen.close()
             hashed = self.get_hash(packages)
             help_result = runner.invoke(cli.cli, ['authorize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress"])
-            jsoned = json.loads(help_result.output)
-            assert jsoned["~NOTARIZED_REQ_FILE~"] == "NOTARIZED"
-            assert jsoned["websockets-8.1.tar.gz"] == "NOTARIZED"
-            assert jsoned["click-8.1.3-py3-none-any.whl"] == "NOTARIZED"
-            assert jsoned["starlette-0.17.1-py3-none-any.whl"] == "NOTARIZED"
+            jsoned = json.loads(help_result.output)["statuses"]
+            assert jsoned["~NOTARIZED_REQ_FILE~"] == 0
+            assert jsoned["websockets-8.1.tar.gz"] == 0
+            assert jsoned["click-8.1.3-py3-none-any.whl"] == 0
+            assert jsoned["starlette-0.17.1-py3-none-any.whl"] == 0
             help_result = runner.invoke(cli.cli, ['authorize', "--reqfile", reqfile, "--api-key", apiKey, "--noprogress", "--notarizepip"])
-            jsoned = json.loads(help_result.output)
-            assert jsoned["~NOTARIZED_REQ_PIPVERSION~"] == "NOTARIZED"
-            assert jsoned["~NOTARIZED_REQ_FILE~"] == "NOTARIZED"
-            assert jsoned["websockets-8.1.tar.gz"] == "NOTARIZED"
-            assert jsoned["click-8.1.3-py3-none-any.whl"] == "NOTARIZED"
-            assert jsoned["starlette-0.17.1-py3-none-any.whl"] == "NOTARIZED"
+            jsoned = json.loads(help_result.output)["statuses"]
+            assert jsoned["~NOTARIZED_REQ_PIPVERSION~"] == 0
+            assert jsoned["~NOTARIZED_REQ_FILE~"] == 0
+            assert jsoned["websockets-8.1.tar.gz"] == 0
+            assert jsoned["click-8.1.3-py3-none-any.whl"] == 0
+            assert jsoned["starlette-0.17.1-py3-none-any.whl"] == 0
             
             
 

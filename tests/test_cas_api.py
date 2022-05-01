@@ -1,5 +1,5 @@
 from tempfile import tempdir
-from cas_pip.casclient.casclient import CASClient
+from cas_pip.casclient.casclient import CASClient, ArtifactStatus, Artifact
 import os
 import pytest
 import tempfile
@@ -16,7 +16,7 @@ async def test_end_to_end_files():
     shaFrom = hashlib.sha256()
     shaFrom.update(writeContent.encode("utf-8"))
     shaFromDigest = shaFrom.hexdigest()
-    client = CASClient(signerID, "cas", apiKey)
+    client = CASClient(signerID, apiKey)
     # Notarization 
     with tempfile.TemporaryDirectory() as tmpDir:
         absolute = os.path.join(tmpDir, "test")
@@ -27,8 +27,8 @@ async def test_end_to_end_files():
         toWrite.close()
         name, status = await client.notarizeFile(absolute, "totest")
         assert name == 'totest'
-        assert status["status"] == 0
-        assert status["hash"] == shaFromDigest
+        assert status.status == ArtifactStatus.Trusted
+        assert status.hash == shaFromDigest
 
     # Authentication of good
     with tempfile.TemporaryDirectory() as tmpDir:
@@ -39,7 +39,7 @@ async def test_end_to_end_files():
         name, status = await client.authenticateFile(absolute, "totest")
         print(name, status)
         assert name == 'totest'
-        assert status["status"] == 0
+        assert status.status == ArtifactStatus.Trusted
 
     writeContentBad = str(time.time()) + str(uuid.uuid4())
     # Not notarized file case
@@ -61,7 +61,7 @@ async def test_end_to_end_files():
         
         toWrite.close()
         name, status = await client.untrustFile(absolute, "totest")
-        assert status["hash"] == shaFromDigest
+        assert status.hash == shaFromDigest
         assert name == 'totest'
     
 
@@ -74,7 +74,7 @@ async def test_end_to_end_files():
         name, status = await client.authenticateFile(absolute, "totest")
         print(name, status)
         assert name == 'totest'
-        assert status["status"] == 1
+        assert status.status == ArtifactStatus.Untrusted
 
     # Unsupport
     with tempfile.TemporaryDirectory() as tmpDir:
@@ -84,7 +84,7 @@ async def test_end_to_end_files():
         
         toWrite.close()
         name, status = await client.unsupportFile(absolute, "totest")
-        assert status["hash"] == shaFromDigest
+        assert status.hash == shaFromDigest
         assert name == 'totest'
     
 
@@ -97,7 +97,7 @@ async def test_end_to_end_files():
         name, status = await client.authenticateFile(absolute, "totest")
         print(name, status)
         assert name == 'totest'
-        assert status["status"] == 3
+        assert status.status ==  ArtifactStatus.Unsupported
 
 
 
@@ -107,7 +107,7 @@ async def test_end_to_end_hashes():
     shaFrom = hashlib.sha256()
     shaFrom.update(writeContent.encode("utf-8"))
     shaFromDigest = shaFrom.hexdigest()
-    client = CASClient(signerID, "cas", apiKey)
+    client = CASClient(signerID, apiKey)
 
     writeContentBad = str(uuid.uuid4()) + str(time.time())
     shaFrom = hashlib.sha256()
@@ -115,32 +115,33 @@ async def test_end_to_end_hashes():
     shaFromDigestBad = shaFrom.hexdigest()
 
     package, what = await client.notarizeHash(shaFromDigest, "test")
-    assert what["status"] == 0
-    assert what["hash"] == shaFromDigest
+    assert what.status == ArtifactStatus.Trusted
+    assert what.hash == shaFromDigest
 
 
     package, what = await client.authenticateHash(shaFromDigest, "test")
-    assert what["status"] == 0
-    assert what["hash"] == shaFromDigest
+    assert what.status == ArtifactStatus.Trusted
+    assert what.hash == shaFromDigest
 
 
     package, what = await client.authenticateHash(shaFromDigest + "x", "test")
+    assert type(what) != Artifact
     assert what == None
 
     package, what = await client.untrustHash(shaFromDigest, "test")
-    assert what["status"] == 1
-    assert what["hash"] == shaFromDigest
+    assert what.status == ArtifactStatus.Untrusted
+    assert what.hash == shaFromDigest
 
     package, what = await client.authenticateHash(shaFromDigest, "test")
-    assert what["status"] == 1
-    assert what["hash"] == shaFromDigest
+    assert what.status == ArtifactStatus.Untrusted
+    assert what.hash == shaFromDigest
 
     package, what = await client.unsupportHash(shaFromDigest, "test")
-    assert what["status"] == 3
-    assert what["hash"] == shaFromDigest
+    assert what.status == ArtifactStatus.Unsupported
+    assert what.hash == shaFromDigest
 
     package, what = await client.authenticateHash(shaFromDigest, "test")
-    assert what["status"] == 3
-    assert what["hash"] == shaFromDigest
+    assert what.status == ArtifactStatus.Unsupported
+    assert what.hash == shaFromDigest
 
 

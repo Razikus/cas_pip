@@ -3,8 +3,12 @@ PROTO_DIR := protos
 # immudb https://github.com/codenotary/immudb/tree/master/pkg/api/schema
 # lc https://github.com/vchain-us/ledger-compliance-go/blob/master/schema/lc.proto
 
+# After generating model you have to change imports inside models to use relatives
+# from . import something as something instead of
+# import something as something
+
 GRPC_GATEWAY := grpcgatewayrepo
-PROTO_FILE := ${PROTO_DIR}/lc.proto ${PROTO_DIR}/schema.proto ${GRPC_GATEWAY}/protoc-gen-swagger/options/annotations.proto ${GRPC_GATEWAY}/protoc-gen-swagger/options/openapiv2.proto
+PROTO_FILE := ${PROTO_DIR}/*.proto
 PROTOC_INCLUDE_PATH_GOOGLE := 	-I${GRPC_GATEWAY} -I ${GRPC_GATEWAY}/third_party/googleapis 
 PROTOC_INCLUDE_PATH := 	-I${PROTO_DIR}
 
