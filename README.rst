@@ -32,3 +32,10 @@ Features
 * API client 
 * Async API client
 * Easy integration with your software
+
+
+Install it
+--------
+```
+pip
+```
