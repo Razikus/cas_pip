@@ -6,8 +6,8 @@ import tempfile
 import hashlib
 import uuid
 import time 
-signerID = os.environ.get("SIGNER_ID", "adam@codenotary.com")
-apiKey = os.environ.get("CAS_API_KEY", "YWRhbUBjb2Rlbm90YXJ5LmNvbQ==.VYOtpkwbfjTpybwaVkPvfvTODnHbGTHrjJCT")
+signerID = os.environ.get("SIGNER_ID", "yoursigner")
+apiKey = os.environ.get("CAS_API_KEY", "yourkey")
 
 
 @pytest.mark.asyncio
@@ -27,7 +27,7 @@ async def test_end_to_end_files():
         toWrite.close()
         name, status = await client.notarizeFile(absolute, "totest")
         assert name == 'totest'
-        assert status.status == ArtifactStatus.Trusted
+        assert status.status == ArtifactStatus.TRUSTED
         assert status.hash == shaFromDigest
 
     # Authentication of good
@@ -39,7 +39,7 @@ async def test_end_to_end_files():
         name, status = await client.authenticateFile(absolute, "totest")
         print(name, status)
         assert name == 'totest'
-        assert status.status == ArtifactStatus.Trusted
+        assert status.status == ArtifactStatus.TRUSTED
 
     writeContentBad = str(time.time()) + str(uuid.uuid4())
     # Not notarized file case
@@ -74,7 +74,7 @@ async def test_end_to_end_files():
         name, status = await client.authenticateFile(absolute, "totest")
         print(name, status)
         assert name == 'totest'
-        assert status.status == ArtifactStatus.Untrusted
+        assert status.status == ArtifactStatus.UNTRUSTED
 
     # Unsupport
     with tempfile.TemporaryDirectory() as tmpDir:
@@ -97,7 +97,7 @@ async def test_end_to_end_files():
         name, status = await client.authenticateFile(absolute, "totest")
         print(name, status)
         assert name == 'totest'
-        assert status.status ==  ArtifactStatus.Unsupported
+        assert status.status ==  ArtifactStatus.UNSUPPORTED
 
 
 
@@ -115,12 +115,12 @@ async def test_end_to_end_hashes():
     shaFromDigestBad = shaFrom.hexdigest()
 
     package, what = await client.notarizeHash(shaFromDigest, "test")
-    assert what.status == ArtifactStatus.Trusted
+    assert what.status == ArtifactStatus.TRUSTED
     assert what.hash == shaFromDigest
 
 
     package, what = await client.authenticateHash(shaFromDigest, "test")
-    assert what.status == ArtifactStatus.Trusted
+    assert what.status == ArtifactStatus.TRUSTED
     assert what.hash == shaFromDigest
 
 
@@ -129,19 +129,19 @@ async def test_end_to_end_hashes():
     assert what == None
 
     package, what = await client.untrustHash(shaFromDigest, "test")
-    assert what.status == ArtifactStatus.Untrusted
+    assert what.status == ArtifactStatus.UNTRUSTED
     assert what.hash == shaFromDigest
 
     package, what = await client.authenticateHash(shaFromDigest, "test")
-    assert what.status == ArtifactStatus.Untrusted
+    assert what.status == ArtifactStatus.UNTRUSTED
     assert what.hash == shaFromDigest
 
     package, what = await client.unsupportHash(shaFromDigest, "test")
-    assert what.status == ArtifactStatus.Unsupported
+    assert what.status == ArtifactStatus.UNSUPPORTED
     assert what.hash == shaFromDigest
 
     package, what = await client.authenticateHash(shaFromDigest, "test")
-    assert what.status == ArtifactStatus.Unsupported
+    assert what.status == ArtifactStatus.UNSUPPORTED
     assert what.hash == shaFromDigest
 
 

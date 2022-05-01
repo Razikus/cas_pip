@@ -41,7 +41,8 @@ class TestCas_pip(unittest.TestCase):
         assert '--help  Show this message and exit.' in help_result.output
         assert 'authenticate' in help_result.output
         assert 'notarize' in help_result.output
-
+    
+    @pytest.mark.first
     def test_notarization(self):
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmpdir:
@@ -120,7 +121,7 @@ class TestCas_pip(unittest.TestCase):
             assert "websockets-8.1.tar.gz" in jsoned # package provided
             assert "click-8.1.3-py3-none-any.whl" in jsoned # package provided 
             assert "starlette-0.17.1-py3-none-any.whl" in jsoned # package dependend from fastapi
-
+    @pytest.mark.second
     def test_authorization(self):
         runner = CliRunner()
         with tempfile.TemporaryDirectory() as tmpdir:

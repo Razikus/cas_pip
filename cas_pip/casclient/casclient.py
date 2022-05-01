@@ -26,11 +26,11 @@ def getCurrentTime():
 
 
 class ArtifactStatus(Enum):
-    Trusted = 0
-    Untrusted = 1
-    Unknown = 2
-    Unsupported = 3
-    Revoked = 4
+    TRUSTED = 0
+    UNTRUSTED = 1
+    UNKNOWN = 2
+    UNSUPPORTED = 3
+    REVOKED = 4
     
 class ArtifactAuthorizationRequest(BaseModel):
     signer: str = None
@@ -252,7 +252,7 @@ class CASClient:
         return await self.notarizeHashWithStatus(hash, packageName, "hash", "hash", 0, status)
 
     async def notarizeHash(self, hash, packageName):
-        return await self.notarizeHashAs(hash, packageName, ArtifactStatus.Trusted)
+        return await self.notarizeHashAs(hash, packageName, ArtifactStatus.TRUSTED)
     
     async def notarizeFileAs(self, absolutePath, packageName, status: ArtifactStatus):
         hash, fileSize = await self.generateHashFromFile(absolutePath)
@@ -263,19 +263,19 @@ class CASClient:
         return await self.notarizeHashWithStatus(hash, packageName, "file", contentType, fileSize, status)
 
     async def notarizeFile(self, absolutePath, packageName):
-        return await self.notarizeFileAs(absolutePath, packageName, ArtifactStatus.Trusted)
+        return await self.notarizeFileAs(absolutePath, packageName, ArtifactStatus.TRUSTED)
     
     async def unsupportFile(self, absolutePath, packageName):
-        return await self.notarizeFileAs(absolutePath, packageName, ArtifactStatus.Unsupported)
+        return await self.notarizeFileAs(absolutePath, packageName, ArtifactStatus.UNSUPPORTED)
 
     async def unsupportHash(self, hash, packageName):
-        return await self.notarizeHashAs(hash, packageName, ArtifactStatus.Unsupported)
+        return await self.notarizeHashAs(hash, packageName, ArtifactStatus.UNSUPPORTED)
     
     async def untrustFile(self, absolutePath, packageName):
-        return await self.notarizeFileAs(absolutePath, packageName, ArtifactStatus.Untrusted)
+        return await self.notarizeFileAs(absolutePath, packageName, ArtifactStatus.UNTRUSTED)
 
     async def untrustHash(self, hash, packageName):
-        return await self.notarizeHashAs(hash, packageName, ArtifactStatus.Untrusted)
+        return await self.notarizeHashAs(hash, packageName, ArtifactStatus.UNTRUSTED)
 
     async def authenticateHash(self, hash, packageName):
         req = ArtifactAuthorizationRequest(hash = hash)

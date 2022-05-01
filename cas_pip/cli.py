@@ -128,7 +128,7 @@ async def authenticate(reqfile, taskchunk, pipnoquiet, nocache, signerid, api_ke
                 if(status.value > 0):
                     statusCodeToRet = status.value
             else:
-                status = ArtifactStatus.Unknown
+                status = ArtifactStatus.UNKNOWN
                 statusCodeToRet = 1
                 authorizedSbom[packageName] = status
 
@@ -159,7 +159,7 @@ async def notarize(reqfile, taskchunk, pipnoquiet, nocache, api_key, output, nop
             logger.error("You must provide CAS_API_KEY environment or --api_key argument")
             sys.exit(1)
     casClient = CASClient(None, api_key)
-    listOf = await markPipBomAs(casClient, reqfile, taskchunk, pipnoquiet, nocache, noprogress, notarizepip, ArtifactStatus.Trusted)
+    listOf = await markPipBomAs(casClient, reqfile, taskchunk, pipnoquiet, nocache, noprogress, notarizepip, ArtifactStatus.TRUSTED)
     if(not listOf):
         sys.exit(1)
     if(output == "-"):
@@ -189,7 +189,7 @@ async def notarizeFile(api_key, output, asname, filename):
             logger.error("You must provide CAS_API_KEY environment or --api_key argument")
             sys.exit(1)
     casClient = CASClient(None, api_key)
-    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.Trusted)
+    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.TRUSTED)
     if(not status):
         sys.exit(1)
     if(output == "-"):
@@ -217,7 +217,7 @@ async def untrustFile(api_key, output, asname, filename):
             logger.error("You must provide CAS_API_KEY environment or --api_key argument")
             sys.exit(1)
     casClient = CASClient(None, api_key)
-    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.Untrusted)
+    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.UNTRUSTED)
     if(not status):
         sys.exit(1)
     if(output == "-"):
@@ -246,7 +246,7 @@ async def unsupportFile(api_key, output, asname, filename):
             logger.error("You must provide CAS_API_KEY environment or --api_key argument")
             sys.exit(1)
     casClient = CASClient(None, api_key)
-    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.Unsupported)
+    status, artifact = await casClient.notarizeFileAs(filename, asname, ArtifactStatus.UNSUPPORTED)
     if(not status):
         sys.exit(1)
     if(output == "-"):
@@ -274,7 +274,7 @@ async def authenticateFile(api_key, signerid, output, filename):
             sys.exit(1)
     statusCodeToRet = 0
     casClient = CASClient(signerid, api_key)
-    status, artifact = await casClient.authenticateFile(filename, ArtifactStatus.Trusted)
+    status, artifact = await casClient.authenticateFile(filename, ArtifactStatus.TRUSTED)
     if(not status):
         sys.exit(1)
     authorizedSbom = dict()
@@ -285,7 +285,7 @@ async def authenticateFile(api_key, signerid, output, filename):
             print("X")
             statusCodeToRet = status.value
     else:
-        status = ArtifactStatus.Unknown
+        status = ArtifactStatus.UNKNOWN
         statusCodeToRet = 1
         authorizedSbom[filename] = status
         
@@ -316,7 +316,7 @@ async def untrust(reqfile, taskchunk, pipnoquiet, nocache, api_key, output, nopr
             logger.error("You must provide CAS_API_KEY environment or --api_key argument")
             sys.exit(1)
     casClient = CASClient(None, api_key)
-    listOf = await markPipBomAs(casClient, reqfile, taskchunk, pipnoquiet, nocache, noprogress, notarizepip, ArtifactStatus.Untrusted)
+    listOf = await markPipBomAs(casClient, reqfile, taskchunk, pipnoquiet, nocache, noprogress, notarizepip, ArtifactStatus.UNTRUSTED)
     if(not listOf):
         sys.exit(1)
     if(output == "-"):
@@ -346,7 +346,7 @@ async def unsupport(reqfile, taskchunk, pipnoquiet, nocache, api_key, output, no
             logger.error("You must provide CAS_API_KEY environment or --api_key argument")
             sys.exit(1)
     casClient = CASClient(None, api_key)
-    listOf = await markPipBomAs(casClient, reqfile, taskchunk, pipnoquiet, nocache, noprogress, notarizepip, ArtifactStatus.Unsupported)
+    listOf = await markPipBomAs(casClient, reqfile, taskchunk, pipnoquiet, nocache, noprogress, notarizepip, ArtifactStatus.UNSUPPORTED)
     if(not listOf):
         sys.exit(1)
     if(output == "-"):
