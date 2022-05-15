@@ -40,7 +40,7 @@ class ArtifactAuthorizationRequest(BaseModel):
 class Artifact(BaseModel):
     signer: str = None
     hash: str
-    type: ArtifactType
+    type: Optional[ArtifactType]
     kind: str
     name: str
     size: int
